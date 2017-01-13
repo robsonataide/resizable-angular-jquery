@@ -1,3 +1,7 @@
 #resizable {
-    border: 1px dashed gray;
+    border: 2px dashed chocolate !important;
+}
+
+.selected-element {
+    border: 2px dashed darkcyan !important;
 }

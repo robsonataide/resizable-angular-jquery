@@ -1,0 +1,21 @@
+{
+  "name": "resizable",
+  "authors": [
+    "Robson Ataíde <robsonataide@gmail.com>"
+  ],
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "font-awesome": "~4.7.0",
+    "jQuery": "~3.1.1"
+  }
+}

@@ -16,10 +16,9 @@
 
 <body ng-app="MyApp">
     <div ng-controller="ResizableController">
-        {{resizableMode}}
-
+        Milimetric: <input type="checkbox" ng-model="resizableData.milimetric">
+        <button ng-click="toggleResizableMode()">{{resizableMode?"Desactive":"Active"}}Resizable Mode</button>
         <div class="container">
-
             <div class="starter">
                 <h1>Teste</h1>
                 <div class="row">
@@ -30,7 +29,6 @@
                     <button class="btn btn-lg btn-primary ">Teste</button>
                 </div>
             </div>
-
         </div>
 
         <div id="users-device-size">

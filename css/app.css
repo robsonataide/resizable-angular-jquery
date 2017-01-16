@@ -5,3 +5,15 @@
 .selected-element {
     border: 2px dashed darkcyan !important;
 }
+
+.pixelInformation {
+    background-color: black;
+    color: #fff;
+    position: relative;
+    margin-right: -10px;
+    margin-top: -20px;
+    width: 50px;
+    font-size: 9px;
+    padding: 4px;
+    text-align: center;
+}

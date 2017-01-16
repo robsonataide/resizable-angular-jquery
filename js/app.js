@@ -5,7 +5,7 @@ app.controller('ResizableController', ['$scope', function($scope) {
     $scope.resizableMode = false;
     var selectedElementClass = 'selected-element';
 
-    var resizableData = {
+    $scope.resizableData = {
         widthParent: 0,
         widthWrap: 0,
         widthElement: 0,
@@ -16,15 +16,10 @@ app.controller('ResizableController', ['$scope', function($scope) {
         milimetric: null
     };
 
-    resizableData.display = $('#users-device-size').find('div:visible').first().attr('id');
-
-    var selectElement = function(elem) {
-        $('.' + selectedElementClass).removeClass(selectedElementClass);
-        $(elem).addClass(selectedElementClass);
-    };
+    $scope.resizableData.display = $('#users-device-size').find('div:visible').first().attr('id');
 
     var convertToCol = function(size) {
-        var cols = size / resizableData.gridStep;
+        var cols = size / $scope.resizableData.gridStep;
         if (cols < 1) {
             cols = 1;
         } else {
@@ -32,105 +27,109 @@ app.controller('ResizableController', ['$scope', function($scope) {
                 cols = Math.round(cols) + 1;
             cols = Math.round(cols);
         }
-        resizableData.cols = cols;
+        $scope.resizableData.cols = cols;
     };
 
     var extractResizableData = function(element) {
-        resizableData.widthParent = $(element).parent().outerWidth();
-        resizableData.widthElement = $(element).outerWidth();
-        resizableData.gridStep = Math.round(resizableData.widthParent / 12);
-        var sizeFloatDiv = resizableData.widthElement / resizableData.gridStep;
-        if (sizeFloatDiv < 1) {
-            sizeFloatDiv = resizableData.gridStep;
+        $scope.resizableData.widthParent = $(element).parent().outerWidth();
+        $scope.resizableData.widthElement = $(element).outerWidth();
+        var sizeFloatDiv = 0;
+        if ($scope.resizableData.milimetric) {
+            sizeFloatDiv = $scope.resizableData.widthElement
         } else {
-            if (sizeFloatDiv > Math.round(sizeFloatDiv) && sizeFloatDiv < Math.round(sizeFloatDiv) + 1)
-                sizeFloatDiv = Math.round(sizeFloatDiv) + 1;
-            sizeFloatDiv = resizableData.gridStep * sizeFloatDiv;
+            $scope.resizableData.gridStep = Math.round($scope.resizableData.widthParent / 12);
+            sizeFloatDiv = $scope.resizableData.widthElement / $scope.resizableData.gridStep;
+            if (sizeFloatDiv < 1) {
+                sizeFloatDiv = $scope.resizableData.gridStep;
+            } else {
+                if (sizeFloatDiv > Math.round(sizeFloatDiv) && sizeFloatDiv < Math.round(sizeFloatDiv) + 1)
+                    sizeFloatDiv = Math.round(sizeFloatDiv) + 1;
+                sizeFloatDiv = $scope.resizableData.gridStep * sizeFloatDiv;
+            }
         }
-        resizableData.widthWrap = sizeFloatDiv;
+        $scope.resizableData.widthWrap = sizeFloatDiv;
     };
 
     var removeColClassName = function(elem, updateOriginal) {
         var className = $(elem).attr('class');
         className = className.split(' ');
         className.filter(function(className) {
-            if (className.startsWith('col-' + resizableData.display)) {
+            if (className.startsWith('col-' + $scope.resizableData.display)) {
                 if (updateOriginal)
-                    resizableData.className = className;
+                    $scope.resizableData.className = className;
                 $(elem).removeClass(className);
             }
         });
     };
 
-    var startResizableMode = function(milimetric) {
-        if (!$scope.resizableMode && milimetric != resizableData.milimetric) {
-            console.log('start with milimetric:' + milimetric);
-            resizableData.milimetric = milimetric;
-            $('.' + selectedElementClass).each(function(idx, elem) {
-                $('body').append('<div id="resizable" />');
-                extractResizableData(elem);
+    var startResizableMode = function() {
+        $scope.resizableData.display = $('#users-device-size').find('div:visible').first().attr('id');
+        $('.' + selectedElementClass).each(function(idx, elem) {
+            $('body').append('<div id="resizable" />');
+            extractResizableData(elem);
 
-                $('#resizable').outerWidth(resizableData.widthWrap);
-                $('#resizable').outerHeight($(elem).outerHeight());
-                $('#resizable').css('position', 'fixed');
-                $('#resizable').offset($(elem).offset());
+            $('#resizable').outerWidth($scope.resizableData.widthWrap);
+            $('#resizable').outerHeight($(elem).outerHeight());
+            $('#resizable').css('position', 'fixed');
+            $('#resizable').offset($(elem).offset());
 
-                $('#resizable').resize(function() {
-                    //TODO: make tooltip for size infomation in pixels 
-                    if (!milimetric)
-                        convertToCol($('#resizable').outerWidth());
-                });
+            $('#resizable').resize(function() {
 
-                var options = {
-                    handles: "e, w",
-                    containment: "parent",
-                    stop: function(event, ui) {
-                        if (!resizableData.milimetric)
-                            resizableData.className = className = 'col-' + resizableData.display + '-' + resizableData.cols;
-                    }
-                };
-
-                if (!resizableData.milimetric)
-                    options.grid = resizableData.gridStep;
-
-                $('#resizable').resizable(options);
+                var sizeInformation = $('#resizable').outerWidth() + 'px';
+                if (!$scope.resizableData.milimetric) {
+                    convertToCol(Math.round($('#resizable').outerWidth()));
+                    sizeInformation = 'col-' + $scope.resizableData.display + '-' + $scope.resizableData.cols;
+                }
+                $('#resizable').html('');
+                $('#resizable').append('<div class="pixelInformation" />');
+                $('#resizable div').html(sizeInformation);
             });
-            $scope.resizableMode = true;
-        }
+
+            var options = {
+                handles: "e, w",
+                containment: "parent",
+                stop: function(event, ui) {
+                    if (!$scope.resizableData.milimetric)
+                        $scope.resizableData.className = className = 'col-' + $scope.resizableData.display + '-' + $scope.resizableData.cols;
+                }
+            };
+
+            if (!$scope.resizableData.milimetric)
+                options.grid = $scope.resizableData.gridStep;
+
+            $('#resizable').resizable(options);
+        });
+        $scope.resizableMode = true;
     };
 
     var stopResizableMode = function() {
         $('.' + selectedElementClass).each(function(idx, elem) {
-            if (resizableData.milimetric) {
+            if ($scope.resizableData.milimetric) {
                 $(elem).outerWidth($('#resizable').outerWidth());
             } else {
+                $(elem).css('width', '');
                 removeColClassName(elem, false);
-                $(elem).addClass(resizableData.className);
+                $(elem).addClass($scope.resizableData.className);
             }
             $scope.resizableMode = false;
-            resizableData.milimetric = null;
             $('#resizable').remove();
         });
     };
 
-    $(document).keydown(function(e) {
-        if (e.shiftKey)
-            console.log('Shift')
-        if (e.ctrlKey)
-            startResizableMode(e.shiftKey);
-        e.preventDefault();
-    });
-
-    $(document).keyup(function(e) {
+    $scope.toggleResizableMode = function() {
         if ($scope.resizableMode)
             stopResizableMode();
-    });
+        else
+            startResizableMode();
+    };
 
-    $('.row div, button').click(function() {
+    $('.row div').click(function() {
         selectElement(this);
     });
 
-    $('body').resize(function() {
-        resizableData.display = $('#users-device-size').find('div:visible').first().attr('id');
-    });
+    var selectElement = function(elem) {
+        $('.' + selectedElementClass).removeClass(selectedElementClass);
+        $(elem).addClass(selectedElementClass);
+    };
+
 }]);
